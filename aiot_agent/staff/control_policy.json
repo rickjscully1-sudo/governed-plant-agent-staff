@@ -1,0 +1,127 @@
+{
+  "policy_id": "PLANT-AGENT-POLICY",
+  "version": "1.0",
+  "name": "Plant Agent Control Policy",
+  "effective_date": "2026-09-28",
+  "plant": "Beverage bottling plant (simulated), Line 3",
+  "simulation_label": "Simulation / mock plant data. Illustrative, not a live plant deployment.",
+  "owner": {
+    "name": "Jordan Reyes",
+    "title": "Agent Control Architect",
+    "owns": "Agent permissions (tool lanes), approval tiers, dual-control triggers, fail-closed and HOLD rules, and the approved scenario list."
+  },
+  "humans": [
+    {"role_id": "shift_lead", "title": "Shift Lead", "name": "Dana Ortiz",
+     "decides": "Line status, production holds (with QA), setpoint changes (with Maintenance)"},
+    {"role_id": "maintenance_supervisor", "title": "Maintenance Supervisor", "name": "Sam Patel",
+     "decides": "Opening work orders; setpoint changes (with Shift Lead)"},
+    {"role_id": "buyer", "title": "Buyer", "name": "Lee Chen",
+     "decides": "Purchase requests; spend above threshold with Plant Manager"},
+    {"role_id": "qa_lead", "title": "QA Lead", "name": "Maria Gomez",
+     "decides": "Signs any quality hold (with Shift Lead)"},
+    {"role_id": "plant_manager", "title": "Plant Manager", "name": "Chris Novak",
+     "decides": "Second signature on spend above threshold; signs the control policy"},
+    {"role_id": "control_architect", "title": "Agent Control Architect", "name": "Jordan Reyes",
+     "decides": "Owns the control policy. Re-issues it for leadership sign-off after any change. Cannot approve plant actions."}
+  ],
+  "approval_tiers": {
+    "read": "Runs automatically. Read-only.",
+    "draft": "Drafted only. One named human must approve before anything opens.",
+    "production": "Affects production (line hold, setpoint change, spend above the threshold). Two different humans must approve (dual control).",
+    "blocked": "Always blocked. No agent may write to a PLC, with or without approval."
+  },
+  "tool_tiers": {
+    "iot_historian_query": "read",
+    "get_plc_tag_snapshot": "read",
+    "get_ot_security_events": "read",
+    "maximo_asset_lookup": "read",
+    "maximo_maintenance_history": "read",
+    "maximo_storeroom_lookup": "read",
+    "repair_recipe_lookup": "read",
+    "oem_manual_search": "read",
+    "technician_notes": "read",
+    "sap_inventory_lead_time": "read",
+    "quality_lab_results": "read",
+    "plant_event_feed": "read",
+    "shift_event_log": "read",
+    "staff_status_read": "read",
+    "draft_work_order": "draft",
+    "draft_purchase_request": "draft",
+    "request_line_hold": "production",
+    "change_setpoint": "production",
+    "plc_write_tag": "blocked"
+  },
+  "tool_approvers": {
+    "draft_work_order": ["maintenance_supervisor"],
+    "draft_purchase_request": ["buyer"],
+    "request_line_hold": ["qa_lead", "shift_lead"],
+    "change_setpoint": ["shift_lead", "maintenance_supervisor"]
+  },
+  "dual_control": {
+    "spend_threshold_usd": 5000.0,
+    "high_spend_approvers": ["buyer", "plant_manager"],
+    "fallback_approvers": ["shift_lead", "plant_manager"],
+    "triggers": [
+      "Production hold (request_line_hold): QA Lead and Shift Lead.",
+      "Process setpoint change (change_setpoint): Shift Lead and Maintenance Supervisor.",
+      "Purchase request above the spend threshold (mock USD): Buyer and Plant Manager.",
+      "Any gated tool without a named approver: Shift Lead and Plant Manager (fail closed)."
+    ]
+  },
+  "plc_rule": {
+    "blocked_tools": ["plc_write_tag"],
+    "blocked_prefix": "plc_",
+    "blocked_keyword": "write",
+    "rule": "PLC writes are always blocked for every agent. No approval can unlock them."
+  },
+  "fail_closed_rules": [
+    "A tool outside the calling agent's lane is denied and logged.",
+    "A tool not in this policy fails closed as blocked.",
+    "Stale sensor or quality data stops the chain and escalates. Nothing is drafted.",
+    "Systems of record that disagree (for example Maximo-style EAM vs SAP-style ERP) stop the chain, hold any draft and escalate.",
+    "An unparseable spend amount is treated as above the threshold.",
+    "An approval that times out expires. It needs a fresh request.",
+    "If this policy is unsigned, or its fingerprint does not match the signed fingerprint, agents may read only. Drafts and production actions are blocked."
+  ],
+  "hold_rules": {
+    "consecutive_out_of_spec_samples_for_hold": 3,
+    "sensor_max_age_hours": 6.0,
+    "quality_max_age_hours": 2.0,
+    "hold_needs": ["qa_lead", "shift_lead"]
+  },
+  "agents": {
+    "coordinator": {"approver": "shift_lead",
+      "allowed_tools": ["plant_event_feed", "staff_status_read"]},
+    "line_watch": {"approver": "shift_lead",
+      "allowed_tools": ["iot_historian_query", "get_plc_tag_snapshot", "get_ot_security_events"]},
+    "maintenance_planner": {"approver": "maintenance_supervisor",
+      "allowed_tools": ["maximo_asset_lookup", "maximo_maintenance_history", "maximo_storeroom_lookup",
+                        "oem_manual_search", "repair_recipe_lookup", "draft_work_order"]},
+    "parts_supply": {"approver": "buyer",
+      "allowed_tools": ["sap_inventory_lead_time", "draft_purchase_request"]},
+    "quality": {"approver": "qa_lead",
+      "allowed_tools": ["quality_lab_results", "request_line_hold"]},
+    "shift_handoff": {"approver": "shift_lead",
+      "allowed_tools": ["shift_event_log", "staff_status_read"]}
+  },
+  "scenarios": [
+    {"id": "filler_drift_to_work_order", "proves": "Agents hand work to each other; nothing opens without the named human."},
+    {"id": "part_gap_escalation", "proves": "Maximo-style EAM and SAP-style ERP disagree: stop, hold, escalate."},
+    {"id": "co2_out_of_spec_hold", "proves": "A production hold needs QA Lead and Shift Lead. PLC write blocked."},
+    {"id": "out_of_lane_guardrails", "proves": "Every out-of-lane attempt is denied and logged."},
+    {"id": "stale_sensor_fail_closed", "proves": "Stale data is not routed into a work order."},
+    {"id": "policy_tampered_fail_closed", "proves": "A policy edited after sign-off blocks drafts and production actions. Reads still run."}
+  ],
+  "change_log": [
+    {"version": "1.0", "date": "2026-09-28", "summary": "Initial signed version.", "by": "Jordan Reyes (Agent Control Architect)"}
+  ],
+  "signoff": {
+    "required_titles": ["Plant Manager", "Operations Director"],
+    "signed_fingerprint": "dc3df362914cc843da6198b70179a3723acebc303746c64c2104a199ca1c84b6",
+    "signatures": [
+      {"title": "Plant Manager", "name": "Chris Novak", "signed_on": "2026-09-25"},
+      {"title": "Operations Director", "name": "Morgan Ellis", "signed_on": "2026-09-26"}
+    ],
+    "note": "Leadership signs the SHA-256 fingerprint of this policy with the signoff block removed. Any later edit changes the fingerprint and blocks drafts and production actions until it is signed again."
+  }
+}

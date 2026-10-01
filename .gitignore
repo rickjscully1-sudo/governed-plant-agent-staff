@@ -1,0 +1,21 @@
+# Virtual environments
+.venv/
+venv/
+venv-*/
+env/
+# Python caches and build output
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+# Logs
+logs/
+*.log
+# Local preview assets not meant for the repo
+hf_preview.png
+# OS files
+.DS_Store

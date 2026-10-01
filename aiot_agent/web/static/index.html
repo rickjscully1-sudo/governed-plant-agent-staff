@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Governed Plant Agent Staff Demo (simulation)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">AIoT</div>
+      <div>
+        <h1>Ops Control Center</h1>
+        <p class="subtitle">Line condition monitoring · human never loses the big call</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="thesis-banner" role="note">
+    <strong>Thesis:</strong> The model provides intelligence. The architecture provides control.
+    <span class="sim-note">Simulation mode · mock plant data · fictional people · rule-based, no AI model calls · no live plant connection</span>
+  </section>
+
+  <nav class="view-tabs" role="tablist" aria-label="Control center views">
+    <a href="#assessment" id="tab-assessment" class="view-tab active" role="tab">Line assessment (single agent)</a>
+    <a href="#staff" id="tab-staff" class="view-tab" role="tab">Agent Staff (multi-agent)</a>
+  </nav>
+
+  <div id="view-assessment">
+  <section class="scenario-bar card-lite">
+    <div class="scenario-bar-head">
+      <h2>Scenario</h2>
+      <label class="sr-only" for="scenario-select">Choose scenario</label>
+      <select id="scenario-select" class="scenario-select" aria-label="Choose scenario"></select>
+      <button id="btn-run" class="btn btn-primary" type="button">Run assessment</button>
+    </div>
+    <div id="scenario-grid" class="scenario-grid" role="group" aria-label="Scenario shortcuts"></div>
+  </section>
+
+  <section id="banner" class="status-banner status-idle" role="status" aria-live="polite">
+    <div class="banner-code" id="banner-code">READY</div>
+    <div class="banner-text">
+      <div class="banner-decision" id="banner-decision">No assessment running</div>
+      <div class="banner-meta" id="banner-meta">Choose a scenario above to investigate FILLER-PUMP-A12 on Line 03.</div>
+    </div>
+    <div class="banner-urgency" id="banner-urgency">Urgency: not assessed</div>
+  </section>
+
+  <main class="grid">
+    <section class="card" id="card-context">
+      <h2>Line / asset</h2>
+      <dl class="kv">
+        <dt>Site</dt><dd id="f-site">Not loaded</dd>
+        <dt>Line</dt><dd id="f-line">LINE-03-FILLER</dd>
+        <dt>Asset</dt><dd id="f-asset">FILLER-PUMP-A12</dd>
+        <dt>Scenario</dt><dd id="f-scenario">None selected</dd>
+      </dl>
+    </section>
+
+    <section class="card" id="card-saw">
+      <h2>What we saw</h2>
+      <div class="subcards">
+        <div class="subcard">
+          <h3>Sensors</h3>
+          <ul id="list-sensors" class="plain-list"><li class="muted">Run a check to load readings</li></ul>
+        </div>
+        <div class="subcard">
+          <h3>Maintenance (Maximo-style / SAP-style mocks)</h3>
+          <ul id="list-maint" class="plain-list"><li class="muted">None yet</li></ul>
+        </div>
+        <div class="subcard">
+          <h3>Technician notes</h3>
+          <ul id="list-tech" class="plain-list"><li class="muted">None yet</li></ul>
+        </div>
+        <div class="subcard">
+          <h3>Fleet / field pattern</h3>
+          <ul id="list-fleet" class="plain-list"><li class="muted">None yet</li></ul>
+        </div>
+        <div class="subcard">
+          <h3>Connectivity / OT</h3>
+          <ul id="list-ot" class="plain-list"><li class="muted">None yet</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="card-decision">
+      <h2>Decision &amp; why</h2>
+      <p class="decision-line" id="f-decision-detail">No assessment yet</p>
+      <ul id="list-why" class="plain-list"><li class="muted">None yet</li></ul>
+    </section>
+
+    <section class="card" id="card-next">
+      <h2>What ops should do next</h2>
+      <ol id="list-next" class="next-list"><li class="muted">None yet</li></ol>
+    </section>
+
+    <section class="card approval-card" id="card-approval">
+      <h2>Human approval</h2>
+      <p id="approval-copy" class="muted">
+        No consequential action is waiting. The system never shuts a line down alone.
+      </p>
+      <div id="approval-panel" class="approval-panel hidden">
+        <div class="approval-action" id="approval-action">No action pending</div>
+        <p class="approval-hint">
+          Approving records a shutdown recommendation after your explicit click.
+          Denying leaves the line under existing rules. Nothing is auto-approved.
+        </p>
+        <p class="dual-control-note">Requires operator + supervisor confirmation</p>
+        <div class="approval-buttons">
+          <button id="btn-approve" class="btn btn-danger" type="button">Approve shutdown</button>
+          <button id="btn-deny" class="btn btn-secondary" type="button">Deny (no action)</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="card-audit">
+      <h2>Audit trail</h2>
+      <p class="muted small" id="audit-path">Compliance log appears after a run.</p>
+      <ul id="list-audit" class="audit-list"><li class="muted">None yet</li></ul>
+    </section>
+  </main>
+  </div>
+
+  <div id="view-staff" class="hidden">
+    <section class="staff-sim-banner" role="note">
+      <strong id="staff-sim-label">Simulation / mock plant data. Illustrative, not a live plant deployment.</strong>
+      <span id="staff-plant">Beverage bottling plant (simulated), Line 3</span>
+    </section>
+
+    <section class="card staff-policy policy-signed" id="staff-card-policy" aria-labelledby="policy-title">
+      <div class="policy-head">
+        <div>
+          <h2 id="policy-title">Control Policy</h2>
+          <div class="policy-name"><span id="policy-name">Plant Agent Control Policy</span> <code id="policy-label">PLANT-AGENT-POLICY v1.0</code></div>
+          <div class="muted small">A named Agent Control Architect owns the permissions, scenarios, and HOLD rules, and plant leadership signs off on them.</div>
+        </div>
+        <span id="policy-status" class="policy-status policy-status-ok" role="status">Signed and active</span>
+      </div>
+      <p id="policy-blocked" class="policy-blocked hidden" role="alert">Policy not signed: drafts and production actions blocked</p>
+      <div class="policy-grid">
+        <div class="policy-col">
+          <h3>Ownership and sign-off</h3>
+          <dl class="kv policy-kv">
+            <dt>Owner</dt><dd id="policy-owner">Jordan Reyes (Agent Control Architect)</dd>
+            <dt>Effective</dt><dd id="policy-effective">2026-09-28</dd>
+            <dt>Signed by</dt><dd><ul id="policy-signoffs" class="plain-list policy-signoffs"><li class="muted">Loading sign-offs...</li></ul></dd>
+            <dt>Fingerprint</dt><dd><code id="policy-fingerprint">-</code> <span class="muted small" id="policy-fp-note"></span></dd>
+            <dt>Change log</dt><dd id="policy-changelog">v1.0 (2026-09-28): Initial signed version.</dd>
+          </dl>
+        </div>
+        <div class="policy-col">
+          <h3>Rules</h3>
+          <ul id="policy-rules" class="plain-list small policy-rules"><li class="muted">Loading rules...</li></ul>
+        </div>
+        <div class="policy-col">
+          <h3>Tool lanes</h3>
+          <ul id="policy-lanes" class="plain-list policy-lanes"><li class="muted">Loading lanes...</li></ul>
+        </div>
+      </div>
+      <p class="muted small policy-foot" id="policy-foot">Simulation / mock plant data. Fictional people. Every audit entry and approval records the policy version and fingerprint it ran under.</p>
+    </section>
+
+    <section class="scenario-bar card-lite">
+      <div class="scenario-bar-head">
+        <h2>Staff scenario</h2>
+        <label class="sr-only" for="staff-scenario-select">Choose staff scenario</label>
+        <select id="staff-scenario-select" class="scenario-select" aria-label="Choose staff scenario"></select>
+        <button id="staff-btn-run" class="btn btn-primary" type="button">Run staff scenario</button>
+      </div>
+      <div id="staff-chips" class="scenario-chips" role="group" aria-label="Staff scenario shortcuts"></div>
+      <p id="staff-story" class="staff-story muted">Pick a scenario to watch the Coordinator route a plant event through the staff.</p>
+    </section>
+
+    <section id="staff-banner" class="status-banner status-idle" role="status" aria-live="polite">
+      <div class="banner-code" id="staff-banner-code">READY</div>
+      <div class="banner-text">
+        <div class="banner-decision" id="staff-banner-headline">No staff scenario running</div>
+        <div class="banner-meta" id="staff-banner-meta">Agents recommend and draft. Named humans decide.</div>
+      </div>
+      <div class="banner-urgency" id="staff-banner-count">&nbsp;</div>
+    </section>
+
+    <main class="staff-grid">
+      <section class="card staff-wide" id="staff-card-org">
+        <h2>The staff: one job each, own tools, named human approver</h2>
+        <div id="staff-org" class="staff-org"></div>
+        <div class="staff-legend" id="staff-legend"></div>
+      </section>
+
+      <section class="card staff-wide" id="staff-card-approvals">
+        <h2>Pending approvals</h2>
+        <p class="muted small">Draft = one named approver. Production-affecting = two different humans (shows 1 of 2). Nothing is auto-approved.</p>
+        <div id="staff-approvals" class="staff-approvals"><p class="muted">Run a scenario to see requests.</p></div>
+        <p id="staff-decision-msg" class="staff-decision-msg hidden" role="status"></p>
+      </section>
+
+      <section class="card staff-wide" id="staff-card-contrib">
+        <h2>Each agent's contribution</h2>
+        <ol id="staff-routes" class="staff-routes"></ol>
+        <div id="staff-contrib" class="staff-contrib"><p class="muted">No run yet.</p></div>
+      </section>
+
+      <section class="card" id="staff-card-blocked">
+        <h2>Blocked attempts</h2>
+        <ul id="staff-blocked" class="plain-list"><li class="muted">None yet.</li></ul>
+      </section>
+
+      <section class="card" id="staff-card-escalations">
+        <h2>Conflicts and escalations</h2>
+        <ul id="staff-escalations" class="plain-list"><li class="muted">None yet.</li></ul>
+      </section>
+
+      <section class="card staff-wide" id="staff-card-briefs">
+        <h2>Role-specific briefs</h2>
+        <div id="staff-briefs" class="staff-briefs"><p class="muted">Briefs appear after a run.</p></div>
+      </section>
+
+      <section class="card staff-wide" id="staff-card-handoff">
+        <h2>Shift handoff brief</h2>
+        <div class="staff-handoff">
+          <div class="subcard"><h3>What happened</h3><ul id="staff-h-happened" class="plain-list"><li class="muted">-</li></ul></div>
+          <div class="subcard"><h3>What is open</h3><ul id="staff-h-open" class="plain-list"><li class="muted">-</li></ul></div>
+          <div class="subcard"><h3>What is risky</h3><ul id="staff-h-risky" class="plain-list"><li class="muted">-</li></ul></div>
+        </div>
+      </section>
+
+      <section class="card staff-wide" id="staff-card-audit">
+        <h2>Audit trail (hash-chained)</h2>
+        <p class="muted small" id="staff-audit-path">Every recommendation, approval, denial and blocked attempt is logged.</p>
+        <ul id="staff-audit" class="audit-list"><li class="muted">-</li></ul>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <span>Simulation only · mock plant data · fictional people · not a live plant deployment · your session is private to you</span>
+    <span id="busy" class="busy hidden">Running assessment…</span>
+  </footer>
+
+  <script src="/session.js"></script>
+  <script src="/app.js"></script>
+  <script src="/staff.js"></script>
+</body>
+</html>

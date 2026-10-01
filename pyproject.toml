@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiot-agent"
+version = "0.1.0"
+description = "Governed plant agent staff demo: fail-closed, human-approved agents over simulated plant data"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Richard J. Scully" }]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[project.scripts]
+aiot-agent = "aiot_agent.__main__:main"
+aiot-control-center = "aiot_agent.web.server:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["aiot_agent*"]
+
+[tool.setuptools.package-data]
+aiot_agent = ["web/static/*", "staff/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

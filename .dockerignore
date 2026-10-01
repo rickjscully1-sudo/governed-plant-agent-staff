@@ -1,0 +1,17 @@
+.venv/
+.git/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+logs/
+build/
+dist/
+hf_preview.png
+*.mp4
+*.pdf
+.DS_Store
+venv/
+venv-*/
+*.log
+render.yaml

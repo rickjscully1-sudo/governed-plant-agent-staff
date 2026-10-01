@@ -1,0 +1,9 @@
+# Render Blueprint: one free Docker web service.
+services:
+  - type: web
+    name: governed-plant-agent-staff
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    autoDeploy: true
