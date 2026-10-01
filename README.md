@@ -2,7 +2,7 @@
 
 > **The model provides intelligence. The architecture provides control.**
 
-**Live demo:** Live demo link coming soon
+**Live demo:** https://governed-plant-agent-staff.onrender.com (free host, sleeps when idle, so the first load can take about a minute)
 
 An interactive demo of a **fail-closed, human-approved agent staff** for a **simulated beverage bottling plant**. Agents watch the line, plan maintenance, check parts, judge quality and write the shift handoff. They recommend and draft. Named humans decide. When data is stale, systems disagree, or the rules themselves were changed without sign-off, the staff stops and escalates instead of guessing.
 
